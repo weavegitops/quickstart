@@ -1,7 +1,7 @@
 apiVersion: templates.weave.works/v1alpha2
 kind: GitOpsTemplate
 metadata:
-  name: pipeline-multiple-environments-by-cluster
+  name: pipeline-multiple-environments-by-namespace
   namespace: {{.Values.pipelines.namespace}}
   annotations:
     templates.weave.works/profiles-enabled: "false"
@@ -34,25 +34,6 @@ spec:
       default: "main"
     - name: GIT_CREDENTIALS_SECRET
       description: Name of the secret in RESOURCE_NAMESPACE containing credentials to create pull requests
-    # Deployment target parameters - this template is based on 3 environments each with a single cluster as a deployment target
-    - name: DEV_CLUSTER_NAME
-      description: Name of GitopsCluster object for Dev environment
-      default: "dev"
-    - name: DEV_CLUSTER_NAMESPACE
-      description: Namespace of GitopsCluster object for Dev environment
-      default: "clusters"
-    - name: TEST_CLUSTER_NAME
-      description: Name of GitopsCluster object for Test environment
-      default: "test"
-    - name: TEST_CLUSTER_NAMESPACE
-      description: Namespace of GitopsCluster object for Test environment
-      default: "clusters"
-    - name: PROD_CLUSTER_NAME
-      description: Name of GitopsCluster object for Prod environment
-      default: "prod"
-    - name: PROD_CLUSTER_NAMESPACE
-      description: Namespace of GitopsCluster object for Prod environment
-      default: "clusters"
   resourcetemplates:
     - content:
       - apiVersion: pipelines.weave.works/v1alpha1
@@ -66,30 +47,30 @@ spec:
             kind: HelmRelease
             name: ${APP_NAME}
           environments:
-          # This template example allows the user to specify given clusters for the environments.
-          # A similar template would support teams using isolation by cluster as a tenancy model
-          # or those generally wanting more configurability within the template by the user.
-          - name: dev
-            targets:
-              - namespace: ${APP_NAMESPACE}
-                clusterRef:
-                  kind: GitopsCluster
-                  name: ${DEV_CLUSTER_NAME}
-                  namespace: ${DEV_CLUSTER_NAMESPACE}
-          - name: test
-            targets:
-              - namespace: ${APP_NAMESPACE}
-                clusterRef:
-                  kind: GitopsCluster
-                  name: ${TEST_CLUSTER_NAME}
-                  namespace: ${TEST_CLUSTER_NAMESPACE}
-          - name: prod
-            targets:
-              - namespace: ${APP_NAMESPACE}
-                clusterRef:
-                  kind: GitopsCluster
-                  name: ${PROD_CLUSTER_NAME}
-                  namespace: ${PROD_CLUSTER_NAMESPACE}
+            # This template example enforces which clusters an application team deploys to, but allows
+            # the association of an app by HelmRelease name and namespace. A similar template would
+            # support teams using isolation by namespace as a tenancy model.
+            - name: dev
+              targets:
+                - namespace: ${APP_NAMESPACE}
+                  clusterRef:
+                    kind: GitopsCluster
+                    name: dev
+                    namespace: flux-system
+            - name: test
+              targets:
+                - namespace: ${APP_NAMESPACE}
+                  clusterRef:
+                    kind: GitopsCluster
+                    name: test
+                    namespace: flux-system
+            - name: prod
+              targets:
+                - namespace: ${APP_NAMESPACE}
+                  clusterRef:
+                    kind: GitopsCluster
+                    name: prod
+                    namespace: flux-system
           promotion:
             strategy:
               pull-request:
