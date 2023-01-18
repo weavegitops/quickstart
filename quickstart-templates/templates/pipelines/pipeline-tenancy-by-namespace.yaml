@@ -1,7 +1,7 @@
 apiVersion: templates.weave.works/v1alpha2
 kind: GitOpsTemplate
 metadata:
-  name: pipeline-multiple-environments-by-namespace
+  name: pipeline-tenancy-by-namespace
   namespace: {{.Values.pipelines.namespace}}
   annotations:
     templates.weave.works/profiles-enabled: "false"
@@ -10,7 +10,7 @@ metadata:
   labels:
     weave.works/template-type: pipeline
 spec:
-  description: Create a pipeline for your helm release to promote via pull request to dev, test and prod environments.
+  description: create a pipeline for soft tenancy when applications are isolated by namespace
   params:
     # Pipeline parameters
     - name: RESOURCE_NAME # Required parameter name for a valid template

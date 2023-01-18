@@ -1,7 +1,7 @@
 apiVersion: templates.weave.works/v1alpha2
 kind: GitOpsTemplate
 metadata:
-  name: pipeline-multiple-environments-by-cluster
+  name: pipeline-tenancy-by-cluster
   namespace: {{.Values.pipelines.namespace}}
   annotations:
     templates.weave.works/profiles-enabled: "false"
@@ -10,7 +10,7 @@ metadata:
   labels:
     weave.works/template-type: pipeline
 spec:
-  description: Create a pipeline for your helm release to promote via pull request to dev, test and prod environments.
+  description: create a pipeline for soft tenancy when applications are isolated by cluster
   params:
     # Pipeline parameters
     - name: RESOURCE_NAME # Required parameter name for a valid template
@@ -37,19 +37,16 @@ spec:
     # Deployment target parameters - this template is based on 3 environments each with a single cluster as a deployment target
     - name: DEV_CLUSTER_NAME
       description: Name of GitopsCluster object for Dev environment
-      default: "dev"
     - name: DEV_CLUSTER_NAMESPACE
       description: Namespace of GitopsCluster object for Dev environment
       default: "clusters"
     - name: TEST_CLUSTER_NAME
       description: Name of GitopsCluster object for Test environment
-      default: "test"
     - name: TEST_CLUSTER_NAMESPACE
       description: Namespace of GitopsCluster object for Test environment
       default: "clusters"
     - name: PROD_CLUSTER_NAME
       description: Name of GitopsCluster object for Prod environment
-      default: "prod"
     - name: PROD_CLUSTER_NAMESPACE
       description: Namespace of GitopsCluster object for Prod environment
       default: "clusters"
